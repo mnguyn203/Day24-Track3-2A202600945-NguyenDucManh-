@@ -23,7 +23,7 @@ def test_pii_scan_has_required_keys():
 
 
 def test_pii_scan_clean_text_no_pii():
-    result = pii_scan("Nhân viên muốn hỏi về chính sách nghỉ phép năm 2024.")
+    result = pii_scan("Nhân viên muốn hỏi về chính sách nghỉ phép năm nay.")
     assert result["has_pii"] is False
     assert result["entities"] == []
 

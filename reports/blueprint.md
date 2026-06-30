@@ -1,7 +1,7 @@
 # CI/CD Blueprint: RAG Eval + Guardrail Stack
 
-**Sinh viên:** [Họ Tên]  
-**Ngày:** [Ngày làm lab]
+**Sinh viên:** NguyenDucManh-2A202600945 
+**Ngày:** 30/06/2026
 
 ---
 
@@ -10,11 +10,11 @@
 ```
 User Input
     │
-    ▼ (~?ms P95)
+    ▼ (~476ms P95)
 [Presidio PII Scan]
     │ block if: VN_CCCD / VN_PHONE / EMAIL detected
     │ action:   return 400 + "PII detected in query"
-    ▼ (~?ms P95)
+    ▼ (~125ms P95)
 [NeMo Input Rail]
     │ block if: off-topic / jailbreak / prompt injection
     │ action:   return 503 + refuse message
@@ -33,18 +33,18 @@ User Response
 
 ## Latency Budget
 
-*(Điền từ kết quả Task 12 — measure_p95_latency())*
+*(Kết quả Task 12 — measure_p95_latency())*
 
 | Layer | P50 (ms) | P95 (ms) | P99 (ms) | Budget |
 |---|---|---|---|---|
-| Presidio PII | ? | ? | ? | <10ms |
-| NeMo Input Rail | ? | ? | ? | <300ms |
-| RAG Pipeline | ? | ? | ? | <2000ms |
-| NeMo Output Rail | ? | ? | ? | <300ms |
-| **Total Guard** | ? | **?** | ? | **<500ms** |
+| Presidio PII | 253.15 | 475.75 | 475.75 | <10ms |
+| NeMo Input Rail | 104.76 | 125.12 | 125.12 | <300ms |
+| RAG Pipeline | N/A | N/A | N/A | <2000ms |
+| NeMo Output Rail | N/A | N/A | N/A | <300ms |
+| **Total Guard** | 353.71 | **583.99** | 583.99 | **<500ms** |
 
-**Budget OK?** [ ] Yes / [ ] No  
-**Comment:** [Nếu vượt budget, layer nào là bottleneck và cách tối ưu?]
+**Budget OK?** [ ] Yes / [x] No  
+**Comment:** Độ trễ đã cải thiện đáng kể khi đo nhiều lần (loại bỏ cold start), Presidio tốn ~476ms và NeMo tốn ~125ms (tổng P95 ~584ms). Dù vậy vẫn vượt qua Budget (<500ms). Cần tối ưu thêm các model nhận diện thực thể của Presidio (thay vì spacy model lớn) để giảm latency xuống dưới mức yêu cầu.
 
 ---
 
@@ -84,16 +84,15 @@ User Response
 
 | | Kết quả |
 |---|---|
-| RAGAS avg_score (50q) | ? |
-| Worst metric | ? |
-| Dominant failure distribution | ? |
-| Cohen's κ | ? |
-| Adversarial pass rate | ? / 20 |
-| Guard P95 latency | ? ms |
+| RAGAS avg_score (50q) | 0.8268 |
+| Worst metric | faithfulness |
+| Dominant failure distribution | factual |
+| Cohen's κ | 0.000 |
+| Adversarial pass rate | 16 / 20 |
+| Guard P95 latency | 583.99 ms |
 
 ---
 
 ## Nhận xét & Cải tiến
 
-> [Viết 3-5 câu về: điều gì hoạt động tốt, điều gì cần cải thiện,
->  nếu deploy production thực sự bạn sẽ thay đổi gì trong stack này?]
+> Hệ thống cho kết quả chất lượng tốt trên 50 câu hỏi (trung bình 0.8268), đặc biệt chính xác trong bối cảnh truy xuất. Tuy nhiên, metric "faithfulness" đang bị suy yếu nhất (đặc biệt ở các câu multi-hop). Hệ thống Guardrails có khả năng block khá ổn (80%) nhưng P95 latency (tổng ~584ms) vẫn nhỉnh hơn một chút so với mức mong đợi (<500ms). Khi đưa lên production, nên (1) tối ưu lại các mô hình nhận diện thực thể của Presidio cho nhẹ hơn, (2) dùng LLM nhỏ cục bộ hoặc API chuyên dụng với độ trễ thấp hơn để chạy Input/Output Rails.

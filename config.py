@@ -8,6 +8,8 @@ load_dotenv()
 # --- API Keys ---
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 HF_TOKEN = os.getenv("HF_TOKEN", "")  # Optional: for HuggingFace models
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "")
+LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")
 
 # --- Qdrant (same as Day 18) ---
 QDRANT_HOST = "localhost"
@@ -15,8 +17,8 @@ QDRANT_PORT = 6333
 COLLECTION_NAME = "lab24_production"
 
 # --- Embedding (same as Day 18) ---
-EMBEDDING_MODEL = "BAAI/bge-m3"
-EMBEDDING_DIM = 1024
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+EMBEDDING_DIM = 384
 
 # --- Chunking (same as Day 18) ---
 HIERARCHICAL_PARENT_SIZE = 2048
